@@ -1,98 +1,109 @@
 # Optimization of Airport Runway Operations: Minimizing Taxiing Time, Reducing Departure Delays, and Optimal Runway Assignment
 
-This repository contains the MATLAB implementation of a unified, three-stage deterministic optimization framework designed to optimize airport ground operations by sequentially minimizing aircraft taxiing time, total departure delays, and runway offset errors.
+This repository presents the MATLAB implementation of a unified, three-stage deterministic optimization framework for airport ground operational efficiency.
 
 ---
 
 ## 1. Description
-Airport ground operations (taxiing, runway slot assignment, and departure scheduling) are critical bottlenecks in global aviation. While stochastic metaheuristics like Genetic Algorithms (GA) and Particle Swarm Optimization (PSO) are effective, they are computationally heavy and produce non-reproducible results. 
 
-This project provides a lightweight, deterministic alternative:
+Airport ground operations — taxiing, runway slot assignment, and departure scheduling — constitute critical bottlenecks in global aviation.
+
+Stochastic metaheuristics such as the Genetic Algorithm (GA) and Particle Swarm Optimization (PSO) impose considerable computational overhead and yield non-reproducible results. The First-Come-First-Served (FCFS) heuristic, similarly, fails to capture the interdependencies among taxiing routes, slot availability, and runway utilization.
+
+The present work introduces a lightweight, fully deterministic alternative structured as a sequential three-stage pipeline. Each stage is aligned with a distinct operational sub-objective:
+
 * **Stage 1 (Taxiing Time):** Minimizes average taxiing time using the **Hooke-Jeeves Pattern Search** method.
 * **Stage 2 (Departure Delay):** Minimizes total squared departure delay using the **Steepest Descent (Gradient Descent)** method.
-* **Stage 3 (Runway Offset):** Minimizes runway offset error using **Fibonacci Search**.
+* **Stage 3 (Runway Offset):** Minimizes the global runway schedule offset error using **Fibonacci Search**.
 
-The framework is benchmarked against the standard **First-Come-First-Served (FCFS)** industry heuristic as well as **GA** and **PSO** metaheuristics.
+The framework is benchmarked against the **FCFS** heuristic, **GA**, and **PSO** across ten independent experimental trials.
 
 ---
 
-## 2. Dataset Information (Self-Curated Dataset)
-The experiments are conducted on a self-curated synthetic dataset (`AirportData2.xlsx`) designed to replicate realistic airport operations. The workbook contains three sheets:
+## 2. Dataset Information (Purpose-Built Dataset)
+
+All experiments are conducted using a purpose-built dataset (`AirportData2.xlsx`) constructed to replicate conditions at a medium-sized airport, which contains three sheets:
 
 1. **`Flights` Sheet:**
    * `FlightID`: Unique identifier for each of the 100 flights.
-   * `ArrivalTime`: Scheduled arrival time in HHMM format.
+   * `ArrivalTime`: Scheduled arrival time in HHMM (Hours Hours Minutes Minutes) format.
    * `DepartureTime`: Scheduled departure time in HHMM format.
-   * `GateNode`: The starting gate node (1–20) from which the aircraft taxies.
+   * `GateNode`: Starting gate node (1–20) from which the aircraft commences taxiing.
 
 2. **`Taxiway` Sheet:**
-   * A $21 \times 21$ adjacency matrix representing the taxiway network topology.
-   * Row/column indices represent taxiway junctions/gates. Node 21 represents the runway threshold.
-   * Non-zero cells represent direct transit time (in minutes) between nodes. Zero entries represent no direct connection.
+   * A 21 × 21 weighted adjacency matrix encoding the taxiway network topology.
+   * Node 21 denotes the runway threshold.
+   * Non-zero entries represent direct transit time in minutes; zero entries indicate no direct link.
 
 3. **`Runways` Sheet:**
-   * `SlotTime`: Available departure slot times in HHMM format. These are expanded by the script into a 15-minute slot grid covering the full operation window.
+   * `SlotTime`: Available departure slot times in HHMM format, expanded into a 15-minute grid covering the full operational window.
 
-### Assembly and Source:
-This dataset is synthetically generated using structural parameters from medium-sized airports (100 flights, 21-node taxiway graph, 85 runway slots). The data generation constraints (e.g., taxi times between 5 and 25 minutes, departure delays between 2 and 15 minutes) are derived from international civil aviation safety standards.
+### Assembly and Source
+
+The dataset is constructed using parameters representative of medium-sized airport operations: 100 flights, a 21-node taxiway graph, and 85 runway slots. Parametric bounds — taxi times of 5–25 minutes and departure delays of 2–15 minutes — are derived from internationally recognized civil aviation standards.
 
 ---
 
 ## 3. Code Information
-The repository consists of a single primary MATLAB script containing the entire optimization implementation:
-* The script loads the dataset from the relative filepath: `"AirportData2.xlsx"`.
-* It pre-computes shortest-path taxi distances using Dijkstra's algorithm.
-* It runs the FCFS baseline, followed by the proposed three-stage deterministic optimization framework over 10 independent runs.
-* It evaluates the comparator GA and PSO algorithms over 10 independent runs.
-* It prints a structured comparative performance table directly to the MATLAB command window.
-* It generates and displays 9 graphical figures illustrating taxi times, schedule alignment, and optimization convergence curves.
+
+The repository consists of a single MATLAB script encapsulating the complete optimization implementation. The script:
+
+* Loads the dataset from the relative filepath `"AirportData2.xlsx"`.
+* Pre-computes shortest-path taxi distances using Dijkstra's algorithm.
+* Executes the FCFS baseline and the three-stage deterministic framework over 10 independent runs.
+* Evaluates GA and PSO comparator algorithms over 10 independent runs.
+* Outputs a structured comparative performance table to the MATLAB Command Window.
+* Generates 9 graphical figures covering taxi times, schedule alignment, and convergence behavior.
 
 ---
 
-## 4. Requirements
-* **MATLAB Version:** Standard MATLAB installation (the script utilizes built-in graph functions like `graph` and `shortestpath`).
-* **Input File:** The Excel spreadsheet `AirportData2.xlsx` must be present in the same folder as the script.
+## 4. Usage Instructions
+
+The reader is kindly requested to follow the procedure below to reproduce the experimental results:
+
+1. Place `AirportData2.xlsx` and the MATLAB script in the same working directory.
+2. Launch MATLAB and set that directory as the active Current Folder.
+3. Open the script in the MATLAB Editor and press **Run**, or invoke it from the Command Window.
+4. **Console Output:** Displays loading status, FCFS baseline statistics, per-run progress, and a final comparative summary table for all four scheduling methods.
+5. **Figure Output:** Generates 9 figures — Figures 1–3 (Deterministic Results), Figures 4–6 (GA and PSO Convergence), Figure 7 (Comparative Bar Chart), Figure 8 (Computational Cost), and Figure 9 (Per-Flight Delay Distribution).
 
 ---
 
-## 5. Usage Instructions
-1. Place the dataset spreadsheet `AirportData2.xlsx` and the script file in the same directory.
-2. Launch MATLAB and set the folder containing these files as the Current Folder.
-3. Open the script file in the MATLAB Editor and press **Run**, or run it from the Command Window.
-4. **Console Output:** The MATLAB Command Window will print the loading progress, FCFS baseline statistics, optimization run progress, and a final summary table comparing all four scheduling methods.
-5. **Figure Output:** MATLAB will generate and display 9 active plotting figures:
-   * **Figure 1:** Optimized Taxiing Time per Flight – Hooke-Jeeves
-   * **Figure 2:** Fibonacci Search Convergence
-   * **Figure 3:** Optimized Runway Schedule – Fibonacci Offset Correction
-   * **Figure 4:** GA Convergence – Best Fitness over Generations
-   * **Figure 5:** PSO Convergence – Global Best over Iterations
-   * **Figure 6:** Convergence Comparison – GA vs. PSO
-   * **Figure 7:** Comparative Performance – All Methods (Grouped Bar Chart)
-   * **Figure 8:** Computational Cost Comparison (CPU Time)
-   * **Figure 9:** Per-Flight Delay Distribution – Deterministic vs. FCFS
+## 5. Requirements
+
+Ensure `AirportData2.xlsx` is in the same directory as the script.
 
 ---
 
-## 6. Methodology Summary
-The unified optimization pipeline runs sequentially in three distinct stages:
-* **Stage 1: Taxiing Time Minimization (Hooke-Jeeves Pattern Search):** Initiates taxi times using Dijkstra's shortest-paths. It uses pattern moves (exploratory steps of size $\delta$ halved recursively) to optimize gate-to-runway routes, incorporating random Gaussian perturbations to simulate real-world taxiway noise.
-* **Stage 2: Departure Delay Minimization (Steepest Descent Method):** Assigns aircraft to available runway slots using a greedy nearest-neighbor approach, then optimizes the departure times using gradient descent with a learning rate of $\alpha = 0.02$ to minimize total quadratic delay.
-* **Stage 3: Runway Offset Minimization (Fibonacci Search):** Minimizes the offset error (the global timeline misalignment) by using Fibonacci line search to find the optimal uniform offset time $\Delta t$ over unimodal absolute deviations.
+## 6. Methodology
 
----
+```mermaid
+flowchart TD
+    A([START]) --> B[Load AirportData2.xlsx\nFlights · Taxiway · Runways]
+    B --> C[Pre-compute Shortest-Path\nTaxi Distances via Dijkstra]
+    C --> D[FCFS Baseline\nGreedy slot assignment · Naïve offset]
 
-## 7. Citations & References
-If you use this code or dataset in your research, please cite the following paper:
-> **Aluvala Sai Vinya, Sree Sruthi Alur, and Mamatha T. M.** (2026). *Optimization of airport runway operations: minimizing taxiing time, reducing departure delays, and optimal runway assignment*. PeerJ Computer Science (Manuscript under review).
+    D --> E{Run Loop\n10 Independent Runs}
 
-### Literature References:
-* **[1]** C. Ding, J. Bi, and Y. Wang, "A hybrid genetic algorithm based on imitation learning for the airport gate assignment problem," *Entropy*, vol. 25, no. 4, Art. no. 565, 2023.
-* **[2]** F. Guédán-Pecker and C. Ramírez-Atencia, "Airport take-off and landing optimization through genetic algorithms," *Expert Systems*, vol. 41, no. 8, Art. no. e13565, 2024.
-* **[3]** H. Zhou and X. Jiang, "Multirunway optimization schedule of airport based on improved genetic algorithm by dynamic time window," *Mathematical Problems in Engineering*, vol. 2015, Art. no. 854372, 2015.
-* **[4]** M. Zhang, Q. Huang, S. Liu, and H. Li, "Multi-objective optimization of aircraft taxiing on the airport surface with consideration to taxiing conflicts and the airport environment," *Sustainability*, vol. 11, no. 23, Art. no. 6728, 2019.
-* **[5]** W. Deng, H. Zhao, L. Zou, G. Li, X. Yang, and D. Wu, "Study on an improved adaptive PSO algorithm for solving multi-objective gate assignment," *Applied Soft Computing*, vol. 59, pp. 288–302, 2017.
-* **[6]** C. Huang, "Hybrid particle swarm optimization and Q-learning for airport parking space allocation and scheduling," *Informatica*, vol. 49, no. 31, pp. 71–86, 2025.
-* **[7]** M. Battipede, G. Sirigu, J.-P. Clarke, and P. Gili, "Hybrid particle swarm optimization with parameter fixing: application to automatic taxi management," *Journal of Air Transportation*, vol. 28, no. 2, pp. 36–48, 2020.
-* **[8]** J. Yin, M. Zhang, Y. Ma, W. Wu, H. Li, and P. Chen, "Prediction and analysis of airport surface taxi time: classification, features, and methodology," *Applied Sciences*, vol. 14, no. 3, Art. no. 1306, 2024.
-* **[9]** G. Lian, Y. Zhang, J. Desai, Z. Xing, and X. Luo, "Predicting taxi-out time at congested airports with optimization-based support vector regression methods," *Mathematical Problems in Engineering*, vol. 2018, Art. no. 7509508, 2018.
-* **[10]** R. Hooke and T. A. Jeeves, "Direct search solution of numerical and statistical problems," *Journal of the ACM*, vol. 8, no. 2, pp. 212–229, 1961.
+    subgraph DET [Deterministic Framework]
+        direction TB
+        S1[Stage 1 — Hooke-Jeeves Pattern Search\nMinimize avg taxiing time\nStep and halved on failure · Gaussian noise added]
+        S2[Stage 2 — Steepest Descent\nGreedy slot assignment\nGradient descent · α = 0.02 · 50 iterations]
+        S3[Stage 3 — Fibonacci Search\nMinimize runway offset error\nOptimal Δt* over interval 0–5 min]
+        S1 --> S2 --> S3
+    end
+
+    E --> DET
+    DET --> F[Record: Taxi Time · Delay · Offset · CPU Time]
+    F --> G{Run 10\ncomplete?}
+    G -- No --> E
+    G -- Yes --> H[Compute Mean ± Std\nacross 10 Runs]
+
+    H --> I[Genetic Algorithm\n60 individuals · 100 generations\nCrossover 0.8 · Mutation 0.05 · Elitism]
+    I --> J[Particle Swarm Optimization\n60 particles · 100 iterations\nw=0.7 · c₁=1.5 · c₂=1.5]
+
+    J --> K[Print Comparative Summary Table\nFCFS · Deterministic · GA · PSO]
+    K --> L[Generate 9 Figures\nFig 1–3: Deterministic · Fig 4–6: GA & PSO\nFig 7–9: Comparison & Delays]
+    L --> M([END])
+```
+````
